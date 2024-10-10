@@ -4,7 +4,6 @@ using KKBookstore.Application;
 using KKBookstore.Infrastructure;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using Microsoft.Extensions.Azure;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -19,7 +18,7 @@ builder.Services.AddControllersWithViews(options =>
 {
     options.SuppressAsyncSuffixInActionNames = false;
 });
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -59,10 +58,10 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 // Congirue CORS to allow all origins
-var myAllowAllOrigins = "AllowAllOrigins";
+var allowAllOrigins = "AllowAllOrigins";
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(myAllowAllOrigins,
+    options.AddPolicy(allowAllOrigins,
         builder =>
         {
             builder.AllowAnyOrigin()
@@ -95,7 +94,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors(myAllowAllOrigins);
+app.UseCors(allowAllOrigins);
 
 app.UseSerilogRequestLogging();
 
@@ -108,7 +107,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 
 //using (var scope = app.Services.CreateScope())
 //{

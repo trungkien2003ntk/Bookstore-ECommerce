@@ -14,17 +14,17 @@
 		<PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="8.0.6" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.6" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.6" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.6" />
+		<PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.6">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.6">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.6" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.6">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -32,23 +32,37 @@
 		<ProjectReference Include="..\KKBookstore.Infrastructure\KKBookstore.Infrastructure.csproj" />
 	</ItemGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+		<DebugSymbols>true</DebugSymbols>
+		<DebugType>full</DebugType>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<EnvironmentName>Development</EnvironmentName>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+		<DebugType>pdbonly</DebugType>
+		<Optimize>true</Optimize>
+		<EnvironmentName>Production</EnvironmentName>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Stage|AnyCPU'">
+		<DebugType>pdbonly</DebugType>
+		<Optimize>true</Optimize>
+		<EnvironmentName>Staging</EnvironmentName>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<Content Remove="appsettings.json" />
 		<Content Remove="appsettings.*.json" />
 	</ItemGroup>
-	<ItemGroup>
-		<Content Include="appsettings.json" CopyToOutputDirectory="Always" />
-		<Content Include="appsettings.$(ASPNETCORE_ENVIRONMENT).json" DependentUpon="appsettings.json" CopyToOutputDirectory="Always" />
-	</ItemGroup>
-	<ItemGroup>
-		<Folder Include="Contracts\Enums\" />
-		<Folder Include="Contracts\Responses\" />
-	</ItemGroup>
-	<PropertyGroup Condition=" '$(Configuration)' == '' Or '$(Configuration)' == 'Debug'">
-		<EnvironmentName>Development</EnvironmentName>
-	</PropertyGroup>
 
-	<PropertyGroup Condition=" '$(Configuration)' != '' and '$(Configuration)' != 'Debug' ">
-		<EnvironmentName>Production</EnvironmentName>
-	</PropertyGroup>
+	<ItemGroup>
+		<Content Include="appsettings.json" CopyToOutputDirectory="Never" />
+		<Content Include="appsettings.*.json" Exclude="appsettings.$(EnvironmentName).json;appsettings.secrets.json" DependentUpon="appsettings.json" CopyToOutputDirectory="Never" />
+		<Content Include="appsettings.$(EnvironmentName).json" DependentUpon="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
+	<Target Name="RenameAppsettings" AfterTargets="Publish">
+		<Move SourceFiles="$(PublishDir)\appsettings.$(EnvironmentName).json" DestinationFiles="$(PublishDir)\appsettings.overrides.json" />
+	</Target>
 </Project>
